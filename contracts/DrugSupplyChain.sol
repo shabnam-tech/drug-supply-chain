@@ -54,4 +54,9 @@ contract DrugSupplyChain {
             batches[_batchId].status = "Compromised";
         }
     }
+
+    function getStatus(string memory _batchId) public view returns (string memory) {
+    return batches[_batchId].status;
+    }
+
 }

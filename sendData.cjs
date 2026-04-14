@@ -1,17 +1,16 @@
-const { Web3 } = require("web3");
+const Web3 = require("web3");
 const fs = require("fs");
 const csv = require("csv-parser");
 
-const web3 = new Web3("http://127.0.0.1:7545");
+const web3 = new Web3("http://127.0.0.1:8545");
 
-
-const contractAddress = "0x5024a29202582255D50c251ae08CFA5B46174B7C";
-
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const contractABI = require("./DrugSupplyChain.json").abi;
 
 const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-async function main(){
+
+async function main() {
 
     console.log("\nConnecting to blockchain...\n");
 
@@ -20,81 +19,70 @@ async function main(){
 
     console.log("Using account:", sender);
 
-    const batchId = "BATCH001";
-
-    console.log("\nSTEP 1: Registering Drug Batch\n");
-
-    await contract.methods.registerBatch(
-        batchId,
-        "COVID Vaccine",
-        2,
-        8
-    ).send({from: sender, gas: 3000000});
-
-    console.log("Batch Registered Successfully\n");
-
-    console.log("STEP 2: Reading Temperature Dataset\n");
-
     let rows = [];
+    let registeredBatches = new Set();
 
     fs.createReadStream("temperature_data.csv")
-    .pipe(csv())
-    .on("data", (row)=>{
-        rows.push(row);
-    })
-    .on("end", async ()=>{
+        .pipe(csv())
+        .on("data", (row) => {
+            rows.push(row);
+        })
+        .on("end", async () => {
 
-        console.log("Dataset loaded");
-        console.log("Total rows:", rows.length);
+            console.log("Dataset loaded");
+            console.log("Total rows:", rows.length);
 
-        console.log("\nSTEP 3: Sending Temperature Data to Blockchain\n");
+            for (let i = 0; i < rows.length; i++) {
 
-        for(let i = 0; i < 5; i++){
+                const batchId = rows[i].batch_id;
+                const temp = parseInt(rows[i].temperature);
 
-            const temp = parseInt(rows[i].temperature);
+                console.log("--------------------------------");
+                console.log("Processing row:", i + 1);
+                console.log("Batch:", batchId);
+                console.log("Temperature:", temp);
 
-            console.log("--------------------------------");
-            console.log("Processing row:", i+1);
-            console.log("Temperature:", temp);
+                if (!registeredBatches.has(batchId)) {
 
-            console.log("Sending transaction...");
+                    console.log("Registering new batch...");
 
-            await contract.methods
-            .recordTemperature(batchId, temp)
-            .send({from: sender, gas: 3000000});
+                    await contract.methods.registerBatch(
+                        batchId,
+                        "Drug",
+                        2,
+                        8
+                    ).send({ from: sender, gas: 3000000 });
 
-            console.log("Transaction mined successfully\n");
-        }
+                    registeredBatches.add(batchId);
 
-        console.log("\nSTEP 4: Fetching Final Batch Data From Blockchain\n");
+                    console.log("Batch registered");
+                }
 
-try {
+                if (temp < 2 || temp > 8) {
+                    console.log("TEMPERATURE VIOLATION DETECTED");
+                }
 
-    console.log("\nSTEP 4: Fetching Final Batch Data From Blockchain\n");
+                await contract.methods
+                    .recordTemperature(batchId, temp)
+                    .send({ from: sender, gas: 3000000 });
 
-    const batch = await contract.methods.batches(batchId).call();
-    console.log("RAW OUTPUT:", batch);
+                const status = await contract.methods.getStatus(batchId).call();
+                console.log("Current Status:", status);
+            }
 
-    console.log("Raw Data Returned:", batch);
+            console.log("\nFINAL STATUS OF ALL BATCHES\n");
 
-    console.log("\n----- FINAL BATCH DATA -----");
+            for (let batchId of registeredBatches) {
 
-    console.log("Batch ID:", batch[0]);
-    console.log("Drug Name:", batch[1]);
-    console.log("Min Temp:", batch[2]);
-    console.log("Max Temp:", batch[3]);
-    console.log("Owner:", batch[4]);
-    console.log("Status:", batch[5]);
+                const batch = await contract.methods.batches(batchId).call();
 
-} catch(err){
+                console.log("--------------------------------");
+                console.log("Batch ID:", batchId);
 
-    console.log("\nCould not decode struct using Web3.");
-    console.log("But transactions were executed successfully.");
-
-}
-
-    });
-
+                const status = await contract.methods.getStatus(batchId).call();
+                console.log("Status:", status);
+            }
+        });
 }
 
 main();
