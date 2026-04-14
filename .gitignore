@@ -1,8 +1,10 @@
 # Node modules
 /node_modules
+**/node_modules
 
 # Compilation output
 /dist
+**/dist
 
 # pnpm deploy output
 /bundle
@@ -18,3 +20,7 @@
 
 # Hardhat coverage reports
 /coverage
+
+# Environment files
+.env
+**/.env

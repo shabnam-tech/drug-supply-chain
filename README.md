@@ -1,7 +1,43 @@
-# Sample Hardhat 3 Beta Project (minimal)
+# Drug Supply Chain DApp
 
-This project has a minimal setup of Hardhat 3 Beta, without any plugins.
+This project contains:
+- Hardhat smart contract code in the root folder
+- React + Vite frontend in `drug-ui`
 
-## What's included?
+## 1) Deploy smart contract
 
-The project includes native support for TypeScript, Hardhat scripts, tasks, and support for Solidity compilation and tests.
+From the project root:
+
+```bash
+npx hardhat node
+```
+
+In another terminal:
+
+```bash
+npx hardhat run scripts/deploy.js --network localhost
+```
+
+Copy the printed contract address.
+
+## 2) Configure frontend contract address
+
+```bash
+cd drug-ui
+cp .env.example .env
+```
+
+Update `drug-ui/.env`:
+
+```env
+VITE_CONTRACT_ADDRESS=0xYourDeployedContractAddress
+```
+
+## 3) Run frontend
+
+```bash
+cd drug-ui
+npm run dev
+```
+
+Open the app in your browser and connect MetaMask.
