@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 const CONTRACT_ADDRESS =
-  import.meta.env.VITE_CONTRACT_ADDRESS ?? "0x5024a29202582255D50c251ae08CFA5B46174B7C";
+  import.meta.env.VITE_CONTRACT_ADDRESS ?? "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const RPC_URL = import.meta.env.VITE_RPC_URL ?? "http://127.0.0.1:8545";
 const PRIVATE_KEY = import.meta.env.VITE_PRIVATE_KEY ?? "";
 const USE_METAMASK = import.meta.env.VITE_USE_METAMASK === "true";

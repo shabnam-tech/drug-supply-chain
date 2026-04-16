@@ -12,6 +12,7 @@
   "dependencies": {
     "@yudiel/react-qr-scanner": "^2.5.1",
     "ethers": "^6.16.0",
+    "papaparse": "^5.5.3",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -23,6 +24,7 @@
     "@rolldown/plugin-babel": "^0.2.2",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.12.2",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
